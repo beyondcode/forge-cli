@@ -12,7 +12,7 @@ class InfoCommand extends ForgeCommand
     protected $signature = 'info';
 
     /** @var string */
-    protected $description = 'Get information about the currently linked sie on Forge.';
+    protected $description = 'Get information about the currently linked site on Forge.';
 
     public function handle(Forge $forge, Configuration $configuration)
     {
