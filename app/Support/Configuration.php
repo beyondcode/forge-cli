@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
+use Laravel\Forge\Resources\Webhook;
 use Laravel\Forge\Resources\Worker;
 use Symfony\Component\Yaml\Yaml;
 
@@ -32,7 +33,7 @@ class Configuration
     {
         $configFile = $path . '/forge.yml';
 
-        $configContent = Yaml::dump($this->getConfigFormat($server, $site), 4);
+        $configContent = Yaml::dump($this->getConfigFormat($server, $site), 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
 
         file_put_contents($configFile, $configContent);
     }
@@ -51,6 +52,9 @@ class Configuration
             'name' => $site->name,
             'server' => $server->id,
             'deployment' => explode("\n", $site->getDeploymentScript()),
+            'webhooks' => collect($this->forge->webhooks($server->id, $site->id))->map(function (Webhook $webhook) {
+                return $webhook->url;
+            })->values()->toArray(),
             'workers' => collect($workers)->map(function (Worker $worker) {
                 return $worker->attributes;
             })->values()->toArray(),
