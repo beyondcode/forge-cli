@@ -15,6 +15,7 @@ class PullEnvCommand extends ForgeCommand
     /**
      * @param Forge $forge
      * @param Configuration $configuration
+     * @return int
      */
     public function handle(Forge $forge, Configuration $configuration)
     {

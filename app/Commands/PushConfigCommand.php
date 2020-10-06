@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Support\Configuration;
 use App\Sync\BaseSync;
+use App\Sync\DeploymentScriptSync;
 use App\Sync\WebhookSync;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Forge\Forge;
@@ -16,6 +17,7 @@ class PushConfigCommand extends ForgeCommand
 {
     const SYNC_CLASSES = [
         WebhookSync::class,
+        DeploymentScriptSync::class,
     ];
 
     protected $signature = 'config:push {--force}';

@@ -4,6 +4,7 @@ namespace App\Support;
 
 use Illuminate\Support\Arr;
 use Laravel\Forge\Forge;
+use Laravel\Forge\Resources\SecurityRule;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Webhook;
@@ -51,6 +52,7 @@ class Configuration
             'id' => $site->id,
             'name' => $site->name,
             'server' => $server->id,
+            'quick-deploy' => $site->quickDeploy,
             'deployment' => explode("\n", $site->getDeploymentScript()),
             'webhooks' => collect($this->forge->webhooks($server->id, $site->id))->map(function (Webhook $webhook) {
                 return $webhook->url;
