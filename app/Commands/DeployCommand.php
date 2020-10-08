@@ -39,7 +39,8 @@ class DeployCommand extends ForgeCommand
 
         $forge->deploySite($serverId, $siteId);
 
-        $this->info('Deployment log');
-        $this->info($forge->siteDeploymentLog($serverId, $siteId));
+        $this->info('The site has been deployed');
+
+        $this->call('deploy:log');
     }
 }
