@@ -29,6 +29,21 @@ To push this file to Forge again, call `forge nginx:push`.
 Once you have made changes to your `forge.yml` file, use the `forge config:push`
 command to synchronize your local settings to Forge.
 
+## Rebooting the server or services
+
+You can reboot the server or services by using the following commands:
+
+* `forge reboot:server` - reboot the server
+* `forge reboot:nginx` - reboot Nginx
+* `forge reboot:mysql` - reboot MySQL
+* `forge reboot:postgres` - reboot Postgres
+
+Every `reboot` command requires confirmation, which you can provide by adding the `--confirm` option.
+
+**IMPORTANT:** Please remember that rebooting the server or services may cause temporary downtime!
+Running the command will only _initiate_ the reboot process. It is up to you to perform whatever steps
+are necessary to confirm that the server or service has properly rebooted.
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
