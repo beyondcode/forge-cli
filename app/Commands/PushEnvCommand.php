@@ -24,7 +24,7 @@ class PushEnvCommand extends ForgeCommand
             return 1;
         }
 
-        if (!file_exists(',env.forge')) {
+        if (!file_exists('.env.forge')) {
             $this->error('The .env.forge file does not exist.');
             exit();
         }
