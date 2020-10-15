@@ -10,9 +10,9 @@ use Laravel\Forge\Resources\Webhook;
 class DeploymentScriptSync extends BaseSync
 {
 
-    public function sync(Server $server, Site $site, OutputStyle $output, bool $force = false): void
+    public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void
     {
-        $deploymentScript = join("\n", $this->config->get('deployment', ''));
+        $deploymentScript = join("\n", $this->config->get($environment, 'deployment', ''));
         $deploymentScriptOnForge = $this->forge->siteDeploymentScript($server->id, $site->id);
 
         if (!$force && $deploymentScript !== $deploymentScriptOnForge) {
@@ -22,7 +22,7 @@ class DeploymentScriptSync extends BaseSync
 
         $this->forge->updateSiteDeploymentScript($server->id, $site->id, $deploymentScript);
 
-        if ($this->config->get('quick-deploy')) {
+        if ($this->config->get($environment, 'quick-deploy')) {
             $site->enableQuickDeploy();
         } else {
             $site->disableQuickDeploy();

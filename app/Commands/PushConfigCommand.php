@@ -4,6 +4,7 @@ namespace App\Commands;
 
 use App\Support\Configuration;
 use App\Sync\BaseSync;
+use App\Sync\DaemonSync;
 use App\Sync\DeploymentScriptSync;
 use App\Sync\WebhookSync;
 use Illuminate\Console\Scheduling\Schedule;
@@ -18,6 +19,7 @@ class PushConfigCommand extends ForgeCommand
     const SYNC_CLASSES = [
         WebhookSync::class,
         DeploymentScriptSync::class,
+        DaemonSync::class,
     ];
 
     protected $signature = 'config:push {environment=production} {--force}';
@@ -43,19 +45,19 @@ class PushConfigCommand extends ForgeCommand
         $server = $forge->server($configuration->get($environment, 'server'));
         $site = $forge->site($server->id, $configuration->get($environment, 'id'));
 
-        $this->synchronize($server, $site);
+        $this->synchronize($environment, $server, $site);
 
         $this->info('Done');
     }
 
-    protected function synchronize(Server $server, Site $site)
+    protected function synchronize(string $environment, Server $server, Site $site)
     {
         foreach (static::SYNC_CLASSES as $syncClass) {
             $this->info('Synchronizing ' . $syncClass);
 
             /** @var BaseSync $synchronizer */
             $syncer = app($syncClass);
-            $syncer->sync($server, $site, $this->getOutput(), $this->option('force'));
+            $syncer->sync($environment, $server, $site, $this->getOutput(), $this->option('force'));
         }
     }
 }

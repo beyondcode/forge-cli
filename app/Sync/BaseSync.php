@@ -22,5 +22,5 @@ abstract class BaseSync
         $this->config = $config;
     }
 
-    abstract public function sync(Server $server, Site $site, OutputStyle $output, bool $force = false): void;
+    abstract public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void;
 }

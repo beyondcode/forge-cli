@@ -10,9 +10,9 @@ use Laravel\Forge\Resources\Webhook;
 class WebhookSync extends BaseSync
 {
 
-    public function sync(Server $server, Site $site, OutputStyle $output, bool $force = false): void
+    public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void
     {
-        $webhooks = collect($this->config->get('webhooks', []));
+        $webhooks = collect($this->config->get($environment, 'webhooks', []));
         $webhooksOnForge = $this->forge->webhooks($server->id, $site->id);
 
         // Create webhooks not on Forge

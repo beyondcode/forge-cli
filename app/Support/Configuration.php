@@ -3,7 +3,9 @@
 namespace App\Support;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Laravel\Forge\Forge;
+use Laravel\Forge\Resources\Daemon;
 use Laravel\Forge\Resources\SecurityRule;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
@@ -58,12 +60,35 @@ class Configuration
             'server' => $server->id,
             'quick-deploy' => $site->quickDeploy,
             'deployment' => explode("\n", $site->getDeploymentScript()),
-            'webhooks' => collect($this->forge->webhooks($server->id, $site->id))->map(function (Webhook $webhook) {
-                return $webhook->url;
-            })->values()->toArray(),
+            'webhooks' => $this->getWebhooks($server, $site),
+            'daemons' => $this->getDaemons($server, $site),
             'workers' => collect($workers)->map(function (Worker $worker) {
                 return $worker->attributes;
             })->values()->toArray(),
         ];
+    }
+
+    protected function getWebhooks(Server $server, Site $site)
+    {
+        return collect($this->forge->webhooks($server->id, $site->id))->map(function (Webhook $webhook) {
+            return $webhook->url;
+        })->values()->toArray();
+    }
+
+    protected function getDaemons(Server $server, Site $site)
+    {
+        return collect($this->forge->daemons($server->id))
+            ->filter(function (Daemon $daemon) use ($site) {
+                return Str::endsWith($daemon->command, " #{$site->id}");
+            })
+            ->map(function (Daemon $daemon) use ($site) {
+                return [
+                    'command' => Str::beforeLast($daemon->command, " #{$site->id}"),
+                    'user' => $daemon->user,
+                    'directory' => $daemon->directory,
+                    'processes' => $daemon->processes,
+                    'startsecs' => $daemon->startsecs,
+                ];
+        })->values()->toArray();
     }
 }
