@@ -7,7 +7,7 @@ use Laravel\Forge\Forge;
 
 class DeployLogCommand extends ForgeCommand
 {
-    protected $signature = 'deploy:log';
+    protected $signature = 'deploy:log {environment=production}';
 
     protected $description = 'View the latest deployment log';
 
@@ -21,10 +21,12 @@ class DeployLogCommand extends ForgeCommand
             return 1;
         }
 
-        $serverId = $configuration->get('server');
-        $siteId = $configuration->get('id');
+        $environment = $this->argument('environment');
 
-        $this->info('Retrieving the latest deployment log...');
+        $serverId = $configuration->get($environment, 'server');
+        $siteId = $configuration->get($environment, 'id');
+
+        $this->info("Retrieving the latest deployment log on {$environment}...");
 
         $log = $forge->siteDeploymentLog($serverId, $siteId);
 

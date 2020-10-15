@@ -9,7 +9,7 @@ use LaravelZero\Framework\Commands\Command;
 
 class PushNginxCommand extends ForgeCommand
 {
-    protected $signature = 'nginx:push';
+    protected $signature = 'nginx:push {environment=production}';
 
     protected $description = 'Push the Nginx config file to Forge';
 
@@ -27,17 +27,25 @@ class PushNginxCommand extends ForgeCommand
             return 1;
         }
 
-        if (!file_exists('nginx-forge.conf')) {
-            $this->error('The nginx-forge.conf file does not exist.');
+        $environment = $this->argument('environment');
+        $filename = "nginx-forge-{$environment}.conf";
+
+        if (!file_exists($filename)) {
+            $this->error("The {$filename} file does not exist.");
             exit();
         }
 
-        $siteId = $configuration->get('id');
+
+        $siteId = $configuration->get($environment, 'id');
 
         try {
-            $forge->updateSiteNginxFile($configuration->get('server'), $configuration->get('id'), file_get_contents('nginx-forge.conf'));
+            $forge->updateSiteNginxFile(
+                $configuration->get($environment, 'server'),
+                $configuration->get($environment, 'id'),
+                file_get_contents($filename)
+            );
 
-            $this->info('Successfully updated the Nginx configuration on Forge.');
+            $this->info("Successfully updated the Nginx configuration on Forge ({$environment}).");
         } catch (\Exception $e) {
             $this->error('Something went wrong: ');
             $this->error($e->getMessage());

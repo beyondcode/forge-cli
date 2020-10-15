@@ -8,7 +8,7 @@ use App\Support\Configuration;
 class PullEnvCommand extends ForgeCommand
 {
 
-    protected $signature = 'env:pull';
+    protected $signature = 'env:pull {environment=production}';
 
     protected $description = 'Pull the env file from Forge';
 
@@ -26,10 +26,12 @@ class PullEnvCommand extends ForgeCommand
             return 1;
         }
 
-        $env = $forge->siteEnvironmentFile($configuration->get('server'), $configuration->get('id'));
+        $environment = $this->argument('environment');
 
-        file_put_contents('.env.forge', $env);
+        $env = $forge->siteEnvironmentFile($configuration->get($environment, 'server'), $configuration->get($environment, 'id'));
 
-        $this->info('Wrote environment file to .env.forge');
+        file_put_contents(".env.forge.{$environment}", $env);
+
+        $this->info("Wrote environment file to .env.forge.{$environment}");
     }
 }

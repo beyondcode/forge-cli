@@ -10,7 +10,7 @@ use LaravelZero\Framework\Commands\Command;
 class DeployCommand extends ForgeCommand
 {
     /** @var string */
-    protected $signature = 'deploy {--update-script}';
+    protected $signature = 'deploy {environment=production} {--update-script}';
 
     /** @var string */
     protected $description = 'Deploy the current project to Forge';
@@ -24,23 +24,27 @@ class DeployCommand extends ForgeCommand
             return 1;
         }
 
-        $serverId = $configuration->get('server');
-        $siteId = $configuration->get('id');
+        $environment = $this->argument('environment');
+
+        $serverId = $configuration->get($environment, 'server');
+        $siteId = $configuration->get($environment, 'id');
 
         if ($this->option('update-script')) {
             $this->info('Updating deployment script...');
 
-            $script = implode("\n", $configuration->get('deployment', []));
+            $script = implode("\n", $configuration->get($environment, 'deployment', []));
 
             $forge->updateSiteDeploymentScript($serverId, $siteId, $script);
         }
 
-        $this->info('Deploying site...');
+        $this->info("Deploying site on {$environment}...");
 
         $forge->deploySite($serverId, $siteId);
 
         $this->info('The site has been deployed');
 
-        $this->call('deploy:log');
+        $this->call('deploy:log', [
+            'environment' => $environment,
+        ]);
     }
 }

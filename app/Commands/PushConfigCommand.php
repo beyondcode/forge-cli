@@ -20,7 +20,7 @@ class PushConfigCommand extends ForgeCommand
         DeploymentScriptSync::class,
     ];
 
-    protected $signature = 'config:push {--force}';
+    protected $signature = 'config:push {environment=production} {--force}';
 
     protected $description = 'Push the configuration from your forge.yml file to Laravel Forge';
 
@@ -38,8 +38,10 @@ class PushConfigCommand extends ForgeCommand
             return 1;
         }
 
-        $server = $forge->server($configuration->get('server'));
-        $site = $forge->site($server->id, $configuration->get('id'));
+        $environment = $this->argument('environment');
+
+        $server = $forge->server($configuration->get($environment, 'server'));
+        $site = $forge->site($server->id, $configuration->get($environment, 'id'));
 
         $this->synchronize($server, $site);
 

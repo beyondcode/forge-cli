@@ -30,18 +30,22 @@ class Configuration
         }
     }
 
-    public function initialize(Server $server, Site $site, string $path)
+    public function initialize(string $environment, Server $server, Site $site, string $path)
     {
         $configFile = $path . '/forge.yml';
 
-        $configContent = Yaml::dump($this->getConfigFormat($server, $site), 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+        $config = $this->config;
+
+        $config[$environment] = $this->getConfigFormat($server, $site);
+
+        $configContent = Yaml::dump($config, 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
 
         file_put_contents($configFile, $configContent);
     }
 
-    public function get($key, $default = null)
+    public function get(string $environment, string $key, $default = null)
     {
-        return Arr::get($this->config, $key, $default);
+        return Arr::get($this->config, "{$environment}.{$key}", $default);
     }
 
     protected function getConfigFormat(Server $server, Site $site)

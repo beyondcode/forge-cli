@@ -4,7 +4,7 @@ namespace App\Commands;
 
 class RebootMySQLCommand extends RebootCommand
 {
-    protected $signature = 'reboot:mysql {--confirm}';
+    protected $signature = 'reboot:mysql {environment=production} {--confirm}';
 
     protected $description = 'Reboot MySQL';
 
@@ -12,7 +12,7 @@ class RebootMySQLCommand extends RebootCommand
 
     public function reboot()
     {
-        $serverId = $this->configuration->get('server');
+        $serverId = $this->configuration->get($this->argument('environment'), 'server');
 
         $this->forge->rebootMysql($serverId);
     }

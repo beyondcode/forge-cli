@@ -9,7 +9,7 @@ use LaravelZero\Framework\Commands\Command;
 
 class PullConfigCommand extends ForgeCommand
 {
-    protected $signature = 'config:pull';
+    protected $signature = 'config:pull {environment=production}';
 
     protected $description = 'Pull the configuration from Laravel Forge and store it in your forge.yml file';
 
@@ -27,10 +27,12 @@ class PullConfigCommand extends ForgeCommand
             return 1;
         }
 
-        $server = $forge->server($configuration->get('server'));
-        $site = $forge->site($server->id, $configuration->get('id'));
+        $environment = $this->argument('environment');
 
-        $configuration->initialize($server, $site, getcwd());
+        $server = $forge->server($configuration->get($environment, 'server'));
+        $site = $forge->site($server->id, $configuration->get($environment, 'id'));
+
+        $configuration->initialize($environment, $server, $site, getcwd());
 
         $this->info('Successfully updated the Forge configuration file.');
     }

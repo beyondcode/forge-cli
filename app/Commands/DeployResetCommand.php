@@ -7,7 +7,7 @@ use Laravel\Forge\Forge;
 
 class DeployResetCommand extends ForgeCommand
 {
-    protected $signature = 'deploy:reset';
+    protected $signature = 'deploy:reset {environment=production}';
 
     protected $description = "Reset the site's deployment state";
 
@@ -21,8 +21,10 @@ class DeployResetCommand extends ForgeCommand
             return 1;
         }
 
-        $serverId = $configuration->get('server');
-        $siteId = $configuration->get('id');
+        $environment = $this->argument('environment');
+
+        $serverId = $configuration->get($environment, 'server');
+        $siteId = $configuration->get($environment, 'id');
 
         $forge->resetDeploymentState($serverId, $siteId);
 

@@ -9,7 +9,7 @@ use Laravel\Forge\Forge;
 class InfoCommand extends ForgeCommand
 {
     /** @var string */
-    protected $signature = 'info';
+    protected $signature = 'info {environment=production}';
 
     /** @var string */
     protected $description = 'Get information about the currently linked site on Forge.';
@@ -23,8 +23,10 @@ class InfoCommand extends ForgeCommand
             return 1;
         }
 
-        $serverId = $configuration->get('server');
-        $siteId = $configuration->get('id');
+        $environment = $this->argument('environment');
+
+        $serverId = $configuration->get($environment, 'server');
+        $siteId = $configuration->get($environment, 'id');
 
         $server = $forge->server($serverId);
         $site = $forge->site($serverId, $siteId);

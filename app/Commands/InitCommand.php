@@ -13,6 +13,7 @@ use LaravelZero\Framework\Commands\Command;
 class InitCommand extends Command
 {
     use EnsureHasToken;
+
     const PROJECT_TYPES = [
         'php' => 'General PHP/Laravel Application.',
         'html' => 'Static HTML site.',
@@ -25,7 +26,7 @@ class InitCommand extends Command
     protected $forge;
 
     /** @var string */
-    protected $signature = 'init';
+    protected $signature = 'init {environment=production}';
 
     /** @var string */
     protected $description = 'Initialize a new app ready to get deployed on Laravel Forge';
@@ -66,7 +67,7 @@ class InitCommand extends Command
             $site = $this->createSite($server);
         }
 
-        $configuration->initialize($server, $site, getcwd());
+        $configuration->initialize($this->argument('environment'), $server, $site, getcwd());
 
         $this->info('The project was successfully initialized.');
     }

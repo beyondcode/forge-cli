@@ -29,20 +29,32 @@ composer update # update dependencies
 
 Use `forge login` to create a Forge API Token that will be used for future API requests.
 
-To link an existing project with Laravel Forge, call `forge init`.
+To link an existing project with Laravel Forge, call `forge init {environment}`.
 This command can also create a new site on Forge if you want.
+
+## Multiple environments
+
+To store and manage the configuration of multiple environments, such as staging, dev and production, you can pass the environment to all Forge CLI commands.
+It always defaults to `production`:
+
+```
+forge init staging
+forge env:pull dev
+forge env:push dev
+# etc.
+``` 
 
 ## env files
 
 You can pull down the environment file that is currently used on Forge using `forge env:pull`.
-This will write a file called `.env.forge`.
+This will write a file called `.env.forge.[environment]`.
 
 To push this file to Forge again, call `forge env:push`.
 
 ## nginx config
 
 You can pull down the site nginx configuration file using `forge nginx:pull`.
-This will write a file called `nginx-forge.conf`.
+This will write a file called `nginx-forge-[environment].conf`.
 
 To push this file to Forge again, call `forge nginx:push`.
 

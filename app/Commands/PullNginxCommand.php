@@ -9,7 +9,7 @@ use LaravelZero\Framework\Commands\Command;
 
 class PullNginxCommand extends ForgeCommand
 {
-    protected $signature = 'nginx:pull';
+    protected $signature = 'nginx:pull {environment=production}';
 
     protected $description = 'Pull the Nginx config file from Forge';
 
@@ -27,10 +27,13 @@ class PullNginxCommand extends ForgeCommand
             return 1;
         }
 
-        $config = $forge->siteNginxFile($configuration->get('server'), $configuration->get('id'));
+        $environment = $this->argument('environment');
+        $filename = "nginx-forge-{$environment}.conf";
 
-        file_put_contents('nginx-forge.conf', $config);
+        $config = $forge->siteNginxFile($configuration->get($environment, 'server'), $configuration->get($environment, 'id'));
 
-        $this->info('Wrote nginx config file to nginx-forge.conf');
+        file_put_contents($filename, $config);
+
+        $this->info('Wrote nginx config file to '.$filename);
     }
 }
