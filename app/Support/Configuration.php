@@ -36,11 +36,14 @@ class Configuration
     {
         $configFile = $path . '/forge.yml';
 
-        $config = $this->config;
+        $this->config[$environment] = $this->getConfigFormat($server, $site);
 
-        $config[$environment] = $this->getConfigFormat($server, $site);
+        $this->store($configFile);
+    }
 
-        $configContent = Yaml::dump($config, 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+    public function store(string $configFile)
+    {
+        $configContent = Yaml::dump($this->config, 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
 
         file_put_contents($configFile, $configContent);
     }
@@ -48,6 +51,11 @@ class Configuration
     public function get(string $environment, string $key, $default = null)
     {
         return Arr::get($this->config, "{$environment}.{$key}", $default);
+    }
+
+    public function set(string $environment, string $key, $value)
+    {
+        Arr::set($this->config, "{$environment}.{$key}", $value);
     }
 
     protected function getConfigFormat(Server $server, Site $site)
@@ -62,9 +70,6 @@ class Configuration
             'deployment' => explode("\n", $site->getDeploymentScript()),
             'webhooks' => $this->getWebhooks($server, $site),
             'daemons' => $this->getDaemons($server, $site),
-            'workers' => collect($workers)->map(function (Worker $worker) {
-                return $worker->attributes;
-            })->values()->toArray(),
         ];
     }
 
