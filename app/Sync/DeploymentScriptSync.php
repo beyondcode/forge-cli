@@ -17,7 +17,7 @@ class DeploymentScriptSync extends BaseSync
         $deploymentScriptOnForge = $this->forge->siteDeploymentScript($server->id, $site->id);
 
         if (!$force && $deploymentScript !== $deploymentScriptOnForge) {
-            $output->warning("Skipping the deployment log update, as the script on Forge is different than your local script.\nUse --force to overwrite it.");
+            $output->warning("Skipping the deployment script update, as the script on Forge is different than your local script.\nUse --force to overwrite it.");
             return;
         }
 
