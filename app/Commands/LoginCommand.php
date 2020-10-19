@@ -22,18 +22,8 @@ class LoginCommand extends Command
 
     use EnsureHasToken;
 
-    /**
-     * The signature of the command.
-     *
-     * @var string
-     */
     protected $signature = 'login {--force}';
 
-    /**
-     * The description of the command.
-     *
-     * @var string
-     */
     protected $description = 'Login to Laravel Forge';
 
     /**

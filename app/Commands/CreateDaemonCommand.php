@@ -9,18 +9,8 @@ use LaravelZero\Framework\Commands\Command;
 
 class CreateDaemonCommand extends ForgeCommand
 {
-    /**
-     * The signature of the command.
-     *
-     * @var string
-     */
     protected $signature = 'daemon {environment=production}';
 
-    /**
-     * The description of the command.
-     *
-     * @var string
-     */
     protected $description = 'Create a new daemon on Laravel Forge';
 
     public function handle(Forge $forge, Configuration $configuration)

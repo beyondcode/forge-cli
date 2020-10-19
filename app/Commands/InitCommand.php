@@ -25,10 +25,8 @@ class InitCommand extends Command
     /** @var Forge */
     protected $forge;
 
-    /** @var string */
     protected $signature = 'init {environment=production}';
 
-    /** @var string */
     protected $description = 'Initialize a new app ready to get deployed on Laravel Forge';
 
     /**

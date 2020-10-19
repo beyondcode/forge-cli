@@ -8,18 +8,8 @@ use LaravelZero\Framework\Commands\Command;
 
 class CreateWebhookCommand extends ForgeCommand
 {
-    /**
-     * The signature of the command.
-     *
-     * @var string
-     */
     protected $signature = 'webhook {environment=production}';
 
-    /**
-     * The description of the command.
-     *
-     * @var string
-     */
     protected $description = 'Create a new Webhook on Laravel Forge';
 
     public function handle(Configuration $configuration)

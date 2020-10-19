@@ -9,10 +9,8 @@ use LaravelZero\Framework\Commands\Command;
 
 class DeployCommand extends ForgeCommand
 {
-    /** @var string */
     protected $signature = 'deploy {environment=production} {--update-script}';
 
-    /** @var string */
     protected $description = 'Deploy the current project to Forge';
 
     public function handle(Forge $forge, Configuration $configuration)

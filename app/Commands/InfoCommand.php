@@ -8,10 +8,8 @@ use Laravel\Forge\Forge;
 
 class InfoCommand extends ForgeCommand
 {
-    /** @var string */
     protected $signature = 'info {environment=production}';
 
-    /** @var string */
     protected $description = 'Get information about the currently linked site on Forge.';
 
     public function handle(Forge $forge, Configuration $configuration)

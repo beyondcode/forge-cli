@@ -10,18 +10,8 @@ use LaravelZero\Framework\Commands\Command;
 
 class SeeLogCommand extends ForgeCommand
 {
-    /**
-     * The signature of the command.
-     *
-     * @var string
-     */
     protected $signature = 'logs {--file=nginx_error} {environment=production}';
 
-    /**
-     * The description of the command.
-     *
-     * @var string
-     */
     protected $description = "Get server logs.\n\n  Possible file types: \n\n  - nginx_access, \n  - nginx_error, \n  - database, \n  - php7x (where x is a valid version number)";
 
     public function handle(Forge $forge, Configuration $configuration)
