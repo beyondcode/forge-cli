@@ -44,5 +44,5 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "bin": ["forge"]
+    "bin": ["builds/forge"]
 }
