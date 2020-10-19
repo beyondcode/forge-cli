@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Support\Configuration;
+use Laravel\Forge\Exceptions\NotFoundException;
 use Laravel\Forge\Forge;
 
 class DeployLogCommand extends ForgeCommand
@@ -28,11 +29,14 @@ class DeployLogCommand extends ForgeCommand
 
         $this->info("Retrieving the latest deployment log on {$environment}...");
 
-        $log = $forge->siteDeploymentLog($serverId, $siteId);
-
-        $this->info('');
-        $this->info('---------- BEGIN DEPLOYMENT LOG ----------');
-        $this->line($log);
-        $this->info('----------- END DEPLOYMENT LOG -----------');
+        try {
+            $log = $forge->siteDeploymentLog($serverId, $siteId);
+            $this->info('');
+            $this->info('---------- BEGIN DEPLOYMENT LOG ----------');
+            $this->line($log);
+            $this->info('----------- END DEPLOYMENT LOG -----------');
+        } catch (NotFoundException $exception) {
+            $this->error("There is currently no deployment log available.");
+        }
     }
 }

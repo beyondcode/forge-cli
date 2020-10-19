@@ -39,6 +39,12 @@ class DeployCommand extends ForgeCommand
 
         $forge->deploySite($serverId, $siteId);
 
+        $forge->retry($forge->timeout, function () use ($serverId, $siteId, $forge) {
+            $site = $forge->site($serverId, $siteId);
+
+            return is_null($site->deploymentStatus);
+        }, 5);
+
         $this->info('The site has been deployed');
 
         $this->call('deploy:log', [
