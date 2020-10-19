@@ -3,6 +3,7 @@
 namespace App\Sync;
 
 use Illuminate\Console\OutputStyle;
+use Laravel\Forge\Exceptions\ValidationException;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Webhook;
@@ -23,7 +24,13 @@ class DeploymentScriptSync extends BaseSync
         $this->forge->updateSiteDeploymentScript($server->id, $site->id, $deploymentScript);
 
         if ($this->config->get($environment, 'quick-deploy')) {
-            $site->enableQuickDeploy();
+            try {
+                $site->enableQuickDeploy();
+            } catch (ValidationException $e) {
+                if (! in_array('Hook already exists on this repository', $e->errors())) {
+                    throw $e;
+                }
+            }
         } else {
             $site->disableQuickDeploy();
         }
