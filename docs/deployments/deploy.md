@@ -13,3 +13,5 @@ configured in your forge.yml file.
 After the deployment is done, you will see the latest deployment log output:
  
 ![](/img/deploy.png)
+
+If you do not want to wait for the deployment to finish,you can provide the `--no-wait` option. This will only trigger the deployment on Forge, without waiting for the deployment result / deployment log.
