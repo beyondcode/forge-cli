@@ -17,6 +17,7 @@ use Symfony\Component\HttpClient\HttpClient;
 class LoginCommand extends Command
 {
     const LOGIN_URL = 'https://forge.laravel.com/auth/login';
+    const TWO_FACTOR_AUTH_URL = 'https://forge.laravel.com/auth/token';
 
     const TOKEN_URL = 'https://forge.laravel.com/oauth/personal-access-tokens';
 
@@ -59,7 +60,17 @@ class LoginCommand extends Command
 
         $uri = $browser->getHistory()->current()->getUri();
 
-        if ($uri === static::LOGIN_URL) {
+        if ($uri === static::TWO_FACTOR_AUTH_URL) {
+            $token = $this->ask('What is your 2FA token?');
+
+            $browser->submitForm('Verify', [
+                'token' => $token,
+            ]);
+
+            $uri = $browser->getHistory()->current()->getUri();
+        }
+
+        if ($uri === static::LOGIN_URL || $uri === static::TWO_FACTOR_AUTH_URL) {
             $this->error('Invalid credentials.');
             exit();
         }
