@@ -13,14 +13,6 @@ class DeployResetCommand extends ForgeCommand
 
     public function handle(Forge $forge, Configuration $configuration)
     {
-        if (! $this->ensureHasToken()) {
-            return 1;
-        }
-
-        if (! $this->ensureHasForgeConfiguration()) {
-            return 1;
-        }
-
         $environment = $this->argument('environment');
 
         $serverId = $configuration->get($environment, 'server');

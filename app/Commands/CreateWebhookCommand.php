@@ -14,13 +14,6 @@ class CreateWebhookCommand extends ForgeCommand
 
     public function handle(Configuration $configuration)
     {
-        if (! $this->ensureHasToken()) {
-            return 1;
-        }
-        if (! $this->ensureHasForgeConfiguration()) {
-            return 1;
-        }
-
         $environment = $this->argument('environment');
 
         $url = $this->ask('Which webhook URL do you want to add');
