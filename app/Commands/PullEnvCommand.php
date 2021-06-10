@@ -19,13 +19,6 @@ class PullEnvCommand extends ForgeCommand
      */
     public function handle(Forge $forge, Configuration $configuration)
     {
-        if (! $this->ensureHasToken()) {
-            return 1;
-        }
-        if (! $this->ensureHasForgeConfiguration()) {
-            return 1;
-        }
-
         $environment = $this->argument('environment');
 
         $env = $forge->siteEnvironmentFile($configuration->get($environment, 'server'), $configuration->get($environment, 'id'));
