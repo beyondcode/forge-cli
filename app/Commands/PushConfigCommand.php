@@ -20,6 +20,7 @@ class PushConfigCommand extends ForgeCommand
         WebhookSync::class,
         DeploymentScriptSync::class,
         DaemonSync::class,
+        WorkerSync::class,
     ];
 
     protected $signature = 'config:push {environment=production} {--force}';
