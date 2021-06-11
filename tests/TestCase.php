@@ -8,7 +8,7 @@ use Mockery;
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
-    use FakesForgeResources;
+    use MocksForge;
 
     protected function tearDown(): void
     {

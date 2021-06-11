@@ -9,7 +9,7 @@ use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Worker;
 
-trait FakesForgeResources
+trait MocksForge
 {
     protected $forge;
 
