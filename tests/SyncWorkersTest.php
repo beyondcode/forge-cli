@@ -2,8 +2,7 @@
 
 namespace Tests;
 
-use Laravel\Forge\Forge;
-use Mockery;
+use App\Support\Defaults;
 use Tests\TestCase;
 
 class SyncWorkersTest extends TestCase
@@ -37,7 +36,7 @@ class SyncWorkersTest extends TestCase
         // are the same - the command should determine this and do nothing
 
         $this->inFixtureDir()->artisan('config:push')
-            ->expectsOutput('Done!')
+            ->expectsOutput('Done')
             ->assertExitCode(0);
     }
 
@@ -87,7 +86,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: emails
                       connection: redis
-                      php: php74
+                      php_version: php74
                       daemon: true
                     -
                       queue: default
@@ -114,7 +113,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: jobs
                       connection: rabbit
-                      php: php73
+                      php_version: php73
                       daemon: true
                       processes: 2
                       timeout: 0
@@ -182,7 +181,7 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: jobs
                     connection: rabbit
-                    php: php73
+                    php_version: php73
                     daemon: true
                   -
                     queue: default
@@ -200,7 +199,7 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: default
                     connection: redis
-                    php: php73
+                    php_version: php73
                 YAML, [
                     ['command' => 'php7.3 /home/forge', 'queue' => 'jobs', 'connection' => 'rabbit', 'daemon' => 1],
                     ['timeout' => 0, 'processes' => 2, 'sleep' => 5, 'delay' => 1],
@@ -211,7 +210,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: jobs
                       connection: rabbit
-                      php: php73
+                      php_version: php73
                       daemon: true
                     -
                       queue: default
@@ -229,7 +228,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: default
                       connection: redis
-                      php: php73
+                      php_version: php73
                 YAML,
             ],
             'additional local worker' => [
@@ -238,12 +237,12 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: jobs
                     connection: rabbit
-                    php: php73
+                    php_version: php73
                     daemon: true
                   -
                     queue: default
                     connection: redis
-                    php: php73
+                    php_version: php73
                 YAML, [
                     ['command' => 'php7.3 /home/forge'],
                 ], <<<YAML
@@ -251,7 +250,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: default
                       connection: redis
-                      php: php73
+                      php_version: php73
                 YAML,
             ],
             'additional default local worker' => [
@@ -263,7 +262,7 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: default
                     connection: redis
-                    php: php73
+                    php_version: php73
                 YAML, [
                     ['command' => 'php7.2 /home/forge', 'daemon' => 1],
                 ], <<<YAML
@@ -271,7 +270,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: default
                       connection: redis
-                      php: php72
+                      php_version: php72
                 YAML,
             ],
             'two identical additional default local workers' => [
@@ -283,7 +282,7 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: default
                     connection: redis
-                    php: php73
+                    php_version: php73
                   -
                     queue: default
                     connection: redis
@@ -294,7 +293,7 @@ class SyncWorkersTest extends TestCase
                     -
                       queue: default
                       connection: redis
-                      php: php73
+                      php_version: php73
                 YAML,
             ],
         ];
@@ -322,7 +321,7 @@ class SyncWorkersTest extends TestCase
         }
 
         $this->inFixtureDir()->artisan('config:pull')
-            ->expectsOutput('Updated the Forge configuration file.')
+            ->expectsOutput('Successfully updated the Forge configuration file.')
             ->assertExitCode(0);
 
         $this->assertInConfig($after);
@@ -417,7 +416,7 @@ class SyncWorkersTest extends TestCase
                   -
                     queue: default
                     connection: redis
-                    php: php74
+                    php_version: php74
                     daemon: true
                     timeout: 61
                 YAML,
@@ -437,7 +436,6 @@ class SyncWorkersTest extends TestCase
                     [
                         'queue' => 'default',
                         'connection' => 'redis',
-                        'php' => 'php74',
                         'daemon' => true,
                         'timeout' => 61,
                         'php_version' => 'php74',
@@ -475,21 +473,7 @@ class SyncWorkersTest extends TestCase
             $this->withForgeWorker($attributes);
         }
 
-        // COPIED FROM CONFIG DON'T KEEP THIS PUT IT SOMEWHERE CENTRAL
-        $default = [
-            'queue' => 'default',
-            'connection' => 'redis',
-            'php' => 'php80',
-            'daemon' => false,
-            'processes' => 1,
-            'timeout' => 60,
-            'sleep' => 10,
-            'delay' => 0,
-            'tries' => null,
-            'environment' => null,
-            'force' => false,
-            'php_version' => 'php80',
-        ];
+        $default = Defaults::worker('php80');
 
         foreach ($create as $attributes) {
             $this->shouldCreateForgeWorker(array_merge($default, $attributes));
