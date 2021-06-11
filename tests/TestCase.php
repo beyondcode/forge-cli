@@ -2,7 +2,6 @@
 
 namespace Tests;
 
-use Laravel\Forge\Forge;
 use LaravelZero\Framework\Testing\TestCase as BaseTestCase;
 use Mockery;
 
@@ -10,8 +9,6 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
     use FakesForgeResources;
-
-    protected $forge;
 
     protected function tearDown(): void
     {
@@ -25,13 +22,20 @@ abstract class TestCase extends BaseTestCase
         file_put_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'forge.yml']), $yaml);
     }
 
-    protected function assertConfig(string $yaml): void
+    protected function inFixtureDir(): static
     {
-        $this->assertSame($yaml, file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'forge.yml'])));
+        chdir(__DIR__ . DIRECTORY_SEPARATOR . 'fixtures');
+
+        return $this;
     }
 
-    protected function mockForge(): void
+    protected function assertConfig(string $yaml): void
     {
-        $this->forge = $this->mock(Forge::class);
+        $this->assertSame($yaml . PHP_EOL, file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'forge.yml'])));
+    }
+
+    protected function assertInConfig(string $yaml): void
+    {
+        $this->assertStringContainsString($yaml, file_get_contents(implode(DIRECTORY_SEPARATOR, [__DIR__, 'fixtures', 'forge.yml'])));
     }
 }
