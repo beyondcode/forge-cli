@@ -70,6 +70,7 @@ class Configuration
             'deployment' => explode("\n", $site->getDeploymentScript()),
             'webhooks' => $this->getWebhooks($server, $site),
             'daemons' => $this->getDaemons($server, $site),
+            'workers' => $this->getWorkers($server, $site),
         ];
     }
 
@@ -95,5 +96,32 @@ class Configuration
                     'startsecs' => $daemon->startsecs,
                 ];
         })->values()->toArray();
+    }
+
+    protected function getWorkers(Server $server, Site $site)
+    {
+        $cli = collect($this->forge->phpVersions($server->id))->firstWhere('usedOnCli', true)->version;
+
+        $defaults = Defaults::worker($cli);
+
+        return collect($this->forge->workers($server->id, $site->id))->map(function ($worker) use ($defaults) {
+            $data = [
+                'queue' => $worker->queue,
+                'connection' => $worker->connection,
+                'php_version' => str_replace('.', '', head(explode(' ', $worker->command))),
+                'daemon' => (bool) $worker->daemon,
+                'processes' => $worker->processes,
+                'timeout' => $worker->timeout,
+                'sleep' => $worker->sleep,
+                'delay' => $worker->delay,
+                'tries' => $worker->tries,
+                'environment' => $worker->environment,
+                'force' => (bool) $worker->force,
+            ];
+
+            $nonDefaults = collect($data)->filter(fn ($value, $key) => $value !== $defaults[$key])->keys()->toArray();
+
+            return Arr::only($data, ['queue', 'connection', ...$nonDefaults]);
+        })->toArray();
     }
 }
