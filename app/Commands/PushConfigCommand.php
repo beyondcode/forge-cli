@@ -9,7 +9,6 @@ use App\Sync\DeploymentScriptSync;
 use App\Sync\WebhookSync;
 use App\Sync\WorkerSync;
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Arr;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
@@ -25,7 +24,7 @@ class PushConfigCommand extends ForgeCommand
         WorkerSync::class,
     ];
 
-    protected $signature = 'config:push {environment=production} {--sync=all} {--force}';
+    protected $signature = 'config:push {environment=production} {--force}';
 
     protected $description = 'Push the configuration from your forge.yml file to Laravel Forge';
 
@@ -41,23 +40,14 @@ class PushConfigCommand extends ForgeCommand
         $server = $forge->server($configuration->get($environment, 'server'));
         $site = $forge->site($server->id, $configuration->get($environment, 'id'));
 
-        $syncClasses = $this->option('sync') === 'all'
-            ? static::SYNC_CLASSES
-            : array_values(Arr::only([
-                'webhooks' => WebhookSync::class,
-                'deployment' => DeploymentScriptSync::class,
-                'daemons' => DaemonSync::class,
-                'workers' => WorkerSync::class,
-            ], explode(',', $this->option('sync'))));
-
-        $this->synchronize($environment, $server, $site, $syncClasses);
+        $this->synchronize($environment, $server, $site);
 
         $this->info('Done');
     }
 
-    protected function synchronize(string $environment, Server $server, Site $site, array $syncClasses)
+    protected function synchronize(string $environment, Server $server, Site $site)
     {
-        foreach ($syncClasses as $syncClass) {
+        foreach (static::SYNC_CLASSES as $syncClass) {
             $this->info('Synchronizing ' . $syncClass);
 
             $output = fn (string $contents, string $level = 'info') => $this->{$level}($contents);

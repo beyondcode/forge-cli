@@ -3,6 +3,9 @@
 namespace Tests;
 
 use App\Support\Defaults;
+use App\Sync\DaemonSync;
+use App\Sync\DeploymentScriptSync;
+use App\Sync\WebhookSync;
 use Tests\TestCase;
 
 class SyncWorkersTest extends TestCase
@@ -12,6 +15,10 @@ class SyncWorkersTest extends TestCase
         parent::setUp();
 
         $this->mockForge();
+
+        $this->mock(WebhookSync::class)->shouldReceive('sync');
+        $this->mock(DeploymentScriptSync::class)->shouldReceive('sync');
+        $this->mock(DaemonSync::class)->shouldReceive('sync');
     }
 
     /** @test */
@@ -35,7 +42,7 @@ class SyncWorkersTest extends TestCase
         // No additional Forge expectations because the local and Forge workers
         // are the same - the command should determine this and do nothing
 
-        $this->inFixtureDir()->artisan('config:push --sync=workers')
+        $this->inFixtureDir()->artisan('config:push')
             ->expectsOutput('Done')
             ->assertExitCode(0);
     }
@@ -482,7 +489,7 @@ class SyncWorkersTest extends TestCase
             $this->shouldDeleteForgeWorker($attributes['id']);
         }
 
-        $command = $this->inFixtureDir()->artisan('config:push --sync=workers --force');
+        $command = $this->inFixtureDir()->artisan('config:push --force');
 
         foreach ($create as $attributes) {
             $command->expectsOutput("Creating {$attributes['queue']} queue worker on {$attributes['connection']} connection...");
@@ -510,7 +517,7 @@ class SyncWorkersTest extends TestCase
             ->withForgePhpVersion(['used_on_cli' => true])
             ->withForgeWorker();
 
-        $command = $this->inFixtureDir()->artisan('config:push --sync=workers');
+        $command = $this->inFixtureDir()->artisan('config:push');
 
         $command->expectsOutput('Found 1 queue workers present on Forge but not listed locally.');
         $command->expectsOutput('Run the command again with the `--force` option to delete them.');
