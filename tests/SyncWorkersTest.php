@@ -328,11 +328,37 @@ class SyncWorkersTest extends TestCase
         $this->assertInConfig($after);
     }
 
+    public function syncUpWorkersProvider(): array
+    {
+        return [
+            // 'omits default values' => [
+            //     '', [
+            //         ['daemon' => 0, 'processes' => 1],
+            //     ], <<<YAML
+            //       workers:
+            //     YAML,
+            // ],
+            'local default worker' => [
+                <<<YAML
+                workers:
+                  -
+                    queue: default
+                    connection: redis
+                YAML, [], [
+                    [
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                    ],
+                ],
+            ],
+        ];
+    }
+
     /**
      * @test
-     * @dataProvider syncDownWorkersProvider
+     * @dataProvider syncUpWorkersProvider
      */
-    public function can_sync_forge_workers_up(string $config, array $forge, array $create, array $delete)
+    public function can_sync_forge_workers_up(string $config, array $forge, array $create = [], array $delete = [])
     {
         $this->withConfig(<<<YAML
         production:
@@ -349,15 +375,37 @@ class SyncWorkersTest extends TestCase
             $this->withForgeWorker($attributes);
         }
 
+        // COPIED FROM CONFIG DON'T KEEP THIS PUT IT SOMEWHERE CENTRAL
+        $default = [
+            'queue' => 'default',
+            'connection' => 'redis',
+            'php' => 'php80',
+            'daemon' => false,
+            'processes' => 1,
+            'timeout' => 60,
+            'sleep' => 10,
+            'delay' => 0,
+            'tries' => null,
+            'environment' => null,
+            'force' => false,
+        ];
+
         foreach ($create as $attributes) {
-            $this->shouldCreateForgeWorker($attributes);
+            $this->shouldCreateForgeWorker(array_merge($default, $attributes));
         }
         foreach ($delete as $attributes) {
             $this->shouldDeleteForgeWorker($attributes);
         }
 
-        $this->inFixtureDir()->artisan('config:push')
-            ->expectsOutput('Updated the Forge configuration file.')
-            ->assertExitCode(0);
+        $command = $this->inFixtureDir()->artisan('config:push');
+
+        foreach ($create as $attributes) {
+            $command->expectsOutput("Creating {$attributes['queue']} queue worker on {$attributes['connection']} connection...");
+        }
+        foreach ($delete as $attributes) {
+            $command->expectsOutput("Deleting {$attributes['queue']} queue worker on {$attributes['connection']} connection...");
+        }
+
+        $command->assertExitCode(0);
     }
 }

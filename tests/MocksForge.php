@@ -8,6 +8,7 @@ use Laravel\Forge\Resources\PHPVersion;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Worker;
+use Mockery;
 
 trait MocksForge
 {
@@ -112,6 +113,20 @@ trait MocksForge
                 ], $attributes),
             ])
         );
+
+        return $this;
+    }
+
+    public function shouldCreateForgeWorker(array $attributes = []): static
+    {
+        $this->forge->expects()->createWorker(Mockery::any(), Mockery::any(), $attributes, false);
+
+        return $this;
+    }
+
+    public function shouldDeleteForgeWorker(int $id): static
+    {
+        $this->forge->expects()->deleteWorker(Mockery::any(), Mockery::any(), $id);
 
         return $this;
     }
