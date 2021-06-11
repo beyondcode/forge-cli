@@ -339,15 +339,115 @@ class SyncWorkersTest extends TestCase
             //     YAML,
             // ],
             'local default worker' => [
+                // Config
                 <<<YAML
                 workers:
                   -
                     queue: default
                     connection: redis
-                YAML, [], [
+                YAML,
+                // Forge
+                [],
+                // Create
+                [
                     [
                         'queue' => 'default',
                         'connection' => 'redis',
+                    ],
+                ],
+                // Delete
+                [],
+            ],
+            'no local workers' => [
+                // Config
+                '',
+                // Forge
+                [
+                    [
+                        'id' => 30,
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                    ],
+                ],
+                // Create
+                [],
+                // Delete
+                [
+                    [
+                        'id' => 30,
+                        'queue' => 'default',
+                    ],
+                ],
+            ],
+            'one local default worker and two identical default Forge workers' => [
+                // Config
+                <<<YAML
+                workers:
+                  -
+                    queue: default
+                    connection: redis
+                YAML,
+                // Forge
+                [
+                    [
+                        'id' => 1,
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                    ],
+                    [
+                        'id' => 2,
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                    ],
+                ],
+                // Create
+                [],
+                // Delete
+                [
+                    [
+                        'id' => 2,
+                        'queue' => 'default',
+                    ],
+                ],
+            ],
+            'local worker only slightly different from Forge worker' => [
+                // Config
+                <<<YAML
+                workers:
+                  -
+                    queue: default
+                    connection: redis
+                    php: php74
+                    daemon: true
+                    timeout: 61
+                YAML,
+                // Forge
+                [
+                    [
+                        'id' => 12,
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                        'daemon' => 1,
+                        'timeout' => 60,
+                        'command' => 'php7.4 /home',
+                    ],
+                ],
+                // Create
+                [
+                    [
+                        'queue' => 'default',
+                        'connection' => 'redis',
+                        'php' => 'php74',
+                        'daemon' => true,
+                        'timeout' => 61,
+                        'php_version' => 'php74',
+                    ],
+                ],
+                // Delete
+                [
+                    [
+                        'id' => 12,
+                        'queue' => 'default',
                     ],
                 ],
             ],
@@ -388,23 +488,48 @@ class SyncWorkersTest extends TestCase
             'tries' => null,
             'environment' => null,
             'force' => false,
+            'php_version' => 'php80',
         ];
 
         foreach ($create as $attributes) {
             $this->shouldCreateForgeWorker(array_merge($default, $attributes));
         }
         foreach ($delete as $attributes) {
-            $this->shouldDeleteForgeWorker($attributes);
+            $this->shouldDeleteForgeWorker($attributes['id']);
         }
 
-        $command = $this->inFixtureDir()->artisan('config:push');
+        $command = $this->inFixtureDir()->artisan('config:push --force');
 
         foreach ($create as $attributes) {
             $command->expectsOutput("Creating {$attributes['queue']} queue worker on {$attributes['connection']} connection...");
         }
         foreach ($delete as $attributes) {
-            $command->expectsOutput("Deleting {$attributes['queue']} queue worker on {$attributes['connection']} connection...");
+            $command->expectsOutput("Deleting {$attributes['queue']} queue worker present on Forge but not listed locally...");
         }
+
+        $command->assertExitCode(0);
+    }
+
+    /**
+     * @test
+     */
+    public function can_skip_deleting_forge_workers_unless_force_option_passed()
+    {
+        $this->withConfig(<<<YAML
+        production:
+          id: 1
+          server: 1
+        YAML);
+
+        $this->withForgeServer()
+            ->withForgeSite()
+            ->withForgePhpVersion(['used_on_cli' => true])
+            ->withForgeWorker();
+
+        $command = $this->inFixtureDir()->artisan('config:push');
+
+        $command->expectsOutput('Found 1 queue workers present on Forge but not listed locally.');
+        $command->expectsOutput('Run the command again with the `--force` option to delete them.');
 
         $command->assertExitCode(0);
     }

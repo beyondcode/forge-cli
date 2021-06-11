@@ -119,7 +119,7 @@ trait MocksForge
 
     public function shouldCreateForgeWorker(array $attributes = []): static
     {
-        $this->forge->expects()->createWorker(Mockery::any(), Mockery::any(), $attributes, false);
+        $this->forge->expects()->createWorker(Mockery::any(), Mockery::any(), $attributes);
 
         return $this;
     }
