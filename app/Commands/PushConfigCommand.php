@@ -49,9 +49,11 @@ class PushConfigCommand extends ForgeCommand
         foreach (static::SYNC_CLASSES as $syncClass) {
             $this->info('Synchronizing ' . $syncClass);
 
+            $output = fn (string $contents, string $level = 'info') => $this->{$level}($contents);
+
             /** @var BaseSync $synchronizer */
             $syncer = app($syncClass);
-            $syncer->sync($environment, $server, $site, $this->getOutput(), $this->option('force'));
+            $syncer->sync($environment, $server, $site, $output, $this->option('force'));
         }
     }
 }

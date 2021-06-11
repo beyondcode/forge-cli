@@ -3,14 +3,14 @@
 namespace App\Sync;
 
 use App\Support\Defaults;
-use Illuminate\Console\OutputStyle;
+use Closure;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Worker;
 
 class WorkerSync extends BaseSync
 {
-    public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void
+    public function sync(string $environment, Server $server, Site $site, Closure $output, bool $force = false): void
     {
         $workers = collect($this->config->get($environment, 'workers', []));
         $forgeWorkers = collect($this->forge->workers($server->id, $site->id))->keyBy('id');
@@ -26,7 +26,7 @@ class WorkerSync extends BaseSync
         })->map(function (array $worker) use ($server, $site, $output) {
             $data = $this->getWorkerPayload($server, $worker);
 
-            $output->writeln("Creating {$data['queue']} queue worker on {$data['connection']} connection...");
+            $output("Creating {$data['queue']} queue worker on {$data['connection']} connection...");
 
             $this->forge->createWorker($server->id, $site->id, $data);
         });
@@ -34,13 +34,13 @@ class WorkerSync extends BaseSync
         if ($forgeWorkers->isNotEmpty()) {
             if ($force) {
                 $forgeWorkers->map(function (Worker $worker) use ($server, $site, $output) {
-                    $output->writeln("Deleting {$worker->queue} queue worker present on Forge but not listed locally...");
+                    $output("Deleting {$worker->queue} queue worker present on Forge but not listed locally...", 'warn');
 
                     $this->forge->deleteWorker($server->id, $site->id, $worker->id);
                 });
             } else {
-                $output->writeln("Found {$forgeWorkers->count()} queue workers present on Forge but not listed locally.");
-                $output->writeln('Run the command again with the `--force` option to delete them.');
+                $output("Found {$forgeWorkers->count()} queue workers present on Forge but not listed locally.", 'warn');
+                $output('Run the command again with the `--force` option to delete them.');
             }
         }
     }
