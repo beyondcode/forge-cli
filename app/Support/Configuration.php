@@ -43,7 +43,9 @@ class Configuration
 
     public function store(string $configFile)
     {
-        $configContent = Yaml::dump($this->config, 4, 2, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+        $flags = Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE | Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK;
+
+        $configContent = Yaml::dump($this->config, 4, 2, $flags);
 
         file_put_contents($configFile, $configContent);
     }
@@ -67,7 +69,7 @@ class Configuration
             'name' => $site->name,
             'server' => $server->id,
             'quick-deploy' => $site->quickDeploy,
-            'deployment' => explode("\n", $site->getDeploymentScript()),
+            'deployment' => $site->getDeploymentScript(),
             'webhooks' => $this->getWebhooks($server, $site),
             'daemons' => $this->getDaemons($server, $site),
             'workers' => $this->getWorkers($server, $site),

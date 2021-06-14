@@ -12,7 +12,7 @@ class DeploymentScriptSync extends BaseSync
 {
     public function sync(string $environment, Server $server, Site $site, Closure $output, bool $force = false): void
     {
-        $deploymentScript = join("\n", $this->config->get($environment, 'deployment', ''));
+        $deploymentScript = is_array($script = $this->config->get($environment, 'deployment', '')) ? join("\n", $script) : $script;
         $deploymentScriptOnForge = $this->forge->siteDeploymentScript($server->id, $site->id);
 
         if (!$force && $deploymentScript !== $deploymentScriptOnForge) {
