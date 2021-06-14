@@ -2,7 +2,7 @@
 
 namespace App\Sync;
 
-use Illuminate\Console\OutputStyle;
+use Closure;
 use Illuminate\Support\Str;
 use Laravel\Forge\Resources\Daemon;
 use Laravel\Forge\Resources\Server;
@@ -12,7 +12,7 @@ use Laravel\Forge\Resources\Webhook;
 class DaemonSync extends BaseSync
 {
 
-    public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void
+    public function sync(string $environment, Server $server, Site $site, Closure $output, bool $force = false): void
     {
         $daemons = collect($this->config->get($environment, 'daemons', []));
         $daemonsOnForge = collect($this->forge->daemons($server->id))->filter(function (Daemon $daemon) use ($site) {
@@ -35,7 +35,7 @@ class DaemonSync extends BaseSync
         $deleteDaemons->map(function (Daemon $daemon) use ($server, $site, $output) {
             $command = Str::beforeLast($daemon->command, " #{$site->id}");
 
-            $output->writeln("Deleting daemon: {$command}");
+            $output("Deleting daemon: {$command}");
             $daemon->delete();
         });
 
@@ -51,7 +51,7 @@ class DaemonSync extends BaseSync
         }), function ($a, $b){
             return count(array_diff($a, $b)) > 0;
         })->map(function ($daemonData) use ($server, $site, $output) {
-            $output->writeln("Creating daemon: {$daemonData['command']}");
+            $output("Creating daemon: {$daemonData['command']}");
             $daemonData['command'] .= " #{$site->id}";
             $this->forge->createDaemon($server->id, $daemonData);
         });

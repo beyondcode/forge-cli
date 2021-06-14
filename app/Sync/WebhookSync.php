@@ -2,7 +2,7 @@
 
 namespace App\Sync;
 
-use Illuminate\Console\OutputStyle;
+use Closure;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
 use Laravel\Forge\Resources\Webhook;
@@ -10,7 +10,7 @@ use Laravel\Forge\Resources\Webhook;
 class WebhookSync extends BaseSync
 {
 
-    public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void
+    public function sync(string $environment, Server $server, Site $site, Closure $output, bool $force = false): void
     {
         $webhooks = collect($this->config->get($environment, 'webhooks', []));
         $webhooksOnForge = $this->forge->webhooks($server->id, $site->id);
@@ -19,7 +19,7 @@ class WebhookSync extends BaseSync
         $webhooks->diff(collect($webhooksOnForge)->map(function (Webhook $webhook) {
             return $webhook->url;
         }))->map(function ($url) use ($server, $site, $output) {
-            $output->writeln("Creating webhook: {$url}");
+            $output("Creating webhook: {$url}");
             $this->forge->createWebhook($server->id, $site->id, [
                 'url' => $url,
             ]);
@@ -32,12 +32,12 @@ class WebhookSync extends BaseSync
             });
 
         if (!$force && $deleteWebhooks->isNotEmpty()) {
-            $output->warning("Skipping the deletion of {$deleteWebhooks->count()} Webhooks. \nUse --force to delete them.");
+            $output("Skipping the deletion of {$deleteWebhooks->count()} Webhooks. \nUse --force to delete them.", 'warn');
             return;
         }
 
         $deleteWebhooks->map(function (Webhook $webhook) use ($server, $site, $output) {
-            $output->writeln("Deleting webhook: {$webhook->url}");
+            $output("Deleting webhook: {$webhook->url}");
             $this->forge->deleteWebhook($server->id, $site->id, $webhook->id);
         });
     }

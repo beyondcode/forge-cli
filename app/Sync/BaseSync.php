@@ -3,7 +3,7 @@
 namespace App\Sync;
 
 use App\Support\Configuration;
-use Illuminate\Console\OutputStyle;
+use Closure;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Server;
 use Laravel\Forge\Resources\Site;
@@ -22,5 +22,5 @@ abstract class BaseSync
         $this->config = $config;
     }
 
-    abstract public function sync(string $environment, Server $server, Site $site, OutputStyle $output, bool $force = false): void;
+    abstract public function sync(string $environment, Server $server, Site $site, Closure $output, bool $force = false): void;
 }
