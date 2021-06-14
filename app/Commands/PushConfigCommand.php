@@ -7,6 +7,7 @@ use App\Sync\BaseSync;
 use App\Sync\DaemonSync;
 use App\Sync\DeploymentScriptSync;
 use App\Sync\WebhookSync;
+use App\Sync\WorkerSync;
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Server;
@@ -20,6 +21,7 @@ class PushConfigCommand extends ForgeCommand
         WebhookSync::class,
         DeploymentScriptSync::class,
         DaemonSync::class,
+        WorkerSync::class,
     ];
 
     protected $signature = 'config:push {environment=production} {--force}';
